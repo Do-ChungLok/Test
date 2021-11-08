@@ -12,6 +12,12 @@
 
 using namespace std;
 
+//TODO: 키보드 입력받아 리턴하는 함수로 변경
+int getKeyboard(char *buffer)
+{
+	return scanf("%s", buffer);	
+}
+
 int main(void)
 {
 	int fd;
@@ -26,18 +32,19 @@ int main(void)
 		return 0;
 	}
  
-	write_ret = write(fd,"ioman_test", 1024);
-	read_ret = read(fd, buf, 1024);
-	cout<< "fd = " <<fd <<endl << "ret_wrtie = " << write_ret <<endl << "read_ret = " <<read_ret <<endl; 
-	cout<< "Content = " << buf <<endl;
-	
-	ioctl(fd,IOCTL_PRINT,NULL);
-	close(fd);
-	
+	cout<< "ioman 실행 테스트 중입니다." <<endl;
 	while(1)
  	{
-		sleep(1);
-		cout<< "ioman 실행 테스트 중입니다." <<endl;
+		if (getKeyboard(buf) > 0) {
+			write_ret = write(fd, buf, 1024);
+			//read_ret = read(fd, buf, 1024);
+			//cout<< "fd = " <<fd <<endl << "ret_wrtie = " << write_ret <<endl << "read_ret = " <<read_ret <<endl; 
+			//cout<< "Content = " << buf <<endl;
+
+			//ioctl(fd,IOCTL_PRINT,NULL);
+	
+		}
  	}
  	
+	close(fd);
 }

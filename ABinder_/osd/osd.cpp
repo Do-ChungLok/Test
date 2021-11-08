@@ -26,18 +26,25 @@ int main(void)
 		return 0;
 	}
  
+#if 0
 	write_ret = write(fd,"osd_test", 512);
 	read_ret = read(fd, buf, 512);
 	cout<< "fd = " <<fd <<endl << "ret_wrtie = " << write_ret <<endl << "read_ret = " <<read_ret <<endl; 
 	cout<< "Content = " << buf <<endl;
 	
 	ioctl(fd,IOCTL_PRINT,NULL);
-	close(fd);
+#endif
 	
 	while(1)
  	{
-		sleep(1);
-		cout<< "osd 실행 테스트 중입니다." <<endl;
+		//sleep(1);
+		read_ret = read(fd, buf, 512);
+		if (read_ret > 0) {
+			//cout<< "fd = " <<fd <<endl << "ret_wrtie = " << write_ret <<endl << "read_ret = " <<read_ret <<endl; 
+			cout<< "Content = " << buf <<endl;
+			//cout<< "osd 실행 테스트 중입니다." <<endl;
+		}
  	}
  	
+	close(fd);
 }

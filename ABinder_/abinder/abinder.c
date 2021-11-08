@@ -2,7 +2,8 @@
 #include <linux/kernel.h> 	/* 'KERN_INFO', 'printk' 등 에 필요 */
 #include <linux/module.h> 	/* 'Kernel Moudle'에 필수 */
 #include <linux/fs.h> 		/* 'file_operations'에 필요 */
-#include <asm/uaccess.h> 	/* 'copy_to, from_user()'에 필요 */
+#include <linux/uaccess.h>
+//#include <asm/uaccess.h> 	/* 'copy_to, from_user()'에 필요 */
 #include <linux/slab.h> 	/* 'kmalloc', 'kfree'에 필요 */
 #include <linux/device.h> 
 #include <linux/errno.h> 	/* '에러 코드'에 필요 */
@@ -13,6 +14,8 @@
 #define DEVICE_NAME "abinder" 
 #define IOCTL_PRINT 1 
 
+//TODO: 전역적으로 사용하는 변수들 묶어서 struct abinder_dev {}  만들어야 함
+//      multi-application 에서 사용하기 위해, process당 변수와 driver 전체에서 사용하는 변수 구분해야하고...
 static dev_t my_dev; 
 static struct class *my_class; 
 static struct cdev my_cdev; 
@@ -65,19 +68,23 @@ long abinder_ioctl(struct file *filp, unsigned int cmd, unsigned long data) {
 /* 'struct file *flip' : 읽기와 쓰기에 전달되는 'flip'은 디바이스 파일이 어떤 형식으로 열렸는지 정보 저장 */
 /* 'loff_t *f_pos' : 'f_pos' 필드 변수에는 현재 읽고 쓰는 위치를 나타냄 */
 ssize_t abinder_write(struct file *filp, const char *buf, size_t count, loff_t *f_pos) { 
-	int not_copied; 
+	int not_copied; 		//NOTE: not_copied 용도가 뭔진 모르겠지만, 불필요한 변수.. copy_from_user 등 함수 리턴값은 에러처리용
 	
 	if (device_buf != NULL) 
 		kfree(device_buf); 
-		
-	if ((device_buf = kmalloc(count + 1, GFP_KERNEL)) == NULL) 
+
+	//NOTE: 이 부분도 매번 malloc 하는게 아니라,  _init 초기에 PAGE_SIZE 정도 버퍼를 만들어두고 관리하면서 사용해야함
+	if ((device_buf = kmalloc(count + 1, GFP_KERNEL)) == NULL)
 		return -ENOMEM; 
 	
 	not_copied = copy_from_user(device_buf, buf, count); 
 	printk("[%s] count = %ld, not_copied = %u\n", __func__, count, not_copied); 
 
-	size = count - not_copied; 
-	return size; 
+	size += count; 			//NOTE:  버퍼에 저장된 바이트 수를 전역변수로 관리하는 목적으로 사용
+
+	if (f_pos) *f_pos = size;
+
+	return count; 			//NOTE: 그렇기 때문에  write 리턴값은  이번에 추가된(쓰여진) 바이트수 리턴
 } 
 
 /* -파일로부터 데이터 읽기- copy 'kernel space buffer' to 'user space buffer', saved by write */ 
@@ -89,13 +96,18 @@ ssize_t abinder_read(struct file *filp, char *buf, size_t count, loff_t *f_pos) 
 	if (device_buf == NULL) 
 		return -1; 
 	
+	//NOTE: 위 write 에서 사용된 (아직 user가 안읽어간 buffer 유효데이터 갯수 = size ) 만큼만 복사해 줌
 	if (count > size) 
 		count = size; 
-		
-	not_copied = copy_to_user(buf, device_buf, count); 
-	printk("[%s] count = %ld, not_copied = %u\n", __func__, count, not_copied); 
 	
-	return (count - not_copied); 
+	if (count > 0)  {
+		not_copied = copy_to_user(buf, device_buf, count);
+		printk("[%s] count = %ld, buffer_avail = %u\n", __func__, count, size);
+
+		size -= count;		//NOTE: **** 이 부분이 중요*****
+	}
+
+	return count;	//NOTE: 사용자에게 전송한 데이터 갯수 리턴 (다 전달했으면 0 이 던져져야, 무한 read 가 안되겠지?)
 } 
 
 /* 등록 함수 : 'Device Driver'를 커널에 등록하기 위해 필요 */ 
@@ -124,6 +136,7 @@ static int __init abinder_init(void){
 		goto unreg_device; 
 	} 
 	
+	//TODO: class 서브그룹은 추후 필요시 추가하는걸로.. (꼭 필요한것은 아니니)
 	/* class : 디바이스의 그룹 -> 'sysfs'에 우리가 만드는 class가 등록됨 
 	'ls -l /sys/class' 에서 클래스 목록 확인가능 */
 	if ((my_class = class_create(THIS_MODULE, DEVICE_NAME)) == NULL) { 
