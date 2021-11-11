@@ -1,17 +1,17 @@
 #include <iostream> 
-#include <sys/wait.h> // 'wait()' 때문에 사용한 라이브러리 
-#include <unistd.h>   // 'execl()' 때문에 사용한 라이브러리
+#include <sys/wait.h> /* 'wait()' 사용 */
+#include <unistd.h>   /* 'execl()' 사용 */
 
 using namespace std; 
 
 void start_osd()
 {
-	execl("/home/do/Test/ABinder/osd/osd","./A",(char*)NULL);
+	execl("/home/do/work/abinder/ABinder_/1110_ABinder/osd/osd","./A",(char*)NULL);
 }
 
 void start_ioman()
 {
-	execl("/home/do/Test/ABinder/ioman/ioman","./A",(char*)NULL);
+	execl("/home/do/work/abinder/ABinder_/1110_ABinder/ioman/ioman","./A",(char*)NULL);
 }
 
 void start_processes()
@@ -20,7 +20,7 @@ void start_processes()
 	pid=fork();
 	
 	if(pid>0){
-		cout <<"[monitor] ID:" <<getpid() <<endl;
+		cout<< "[monitor] ID : " <<getpid() <<endl;
 		wait(nullptr);
 	 }
 	
@@ -28,21 +28,19 @@ void start_processes()
 		pid=fork();
 		
 		if(pid>0){
-			cout <<"[osd] ID:" <<getpid() <<endl;
+			cout<< "[  osd  ] ID : " <<getpid() <<endl;
 			start_osd();
 		}
 		
 		else
-			cout <<"[ioman] ID:" <<getpid() <<endl;
+			cout<< "[ ioman ] ID : " <<getpid() <<endl;
 			start_ioman();
 		}
 	    
 	else
-		 cout <<"ERROR" <<endl;
+		 cout<< "ERROR" <<endl;
 		 exit(1);
 }
-
-
 
 int main() {
 	start_processes();

@@ -9,8 +9,6 @@ default:
 
 clean: 
 	make -C $(KDIR) M=$(PWD) clean 
-	#rm -f Module.symvers modules.order 			## remove useless commands
-	#rm -f ${NAME}.o ${NAME}.mod ${NAME}.mod.c ${NAME}.mod.o
 
 fclean: clean 
 	rm -f ${NAME}.ko 
