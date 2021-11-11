@@ -14,8 +14,6 @@
 #define DEVICE_NAME "abinder" 
 #define IOCTL_PRINT 1 
 
-//TODO: 전역적으로 사용하는 변수들 묶어서 struct abinder_dev {}  만들어야 함
-//      multi-application 에서 사용하기 위해, process당 변수와 driver 전체에서 사용하는 변수 구분해야하고...
 static dev_t my_dev; 
 static struct class *my_class; 
 static struct cdev my_cdev; 
