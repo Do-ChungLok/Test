@@ -6,12 +6,12 @@ using namespace std;
 
 void start_osd()
 {
-	execl("/home/do/work/abinder/ABinder_/1110_ABinder/osd/osd","./A",(char*)NULL);
+	execl("/home/do/work/Test/ABinder_/osd/osd","./A",(char*)NULL);
 }
 
 void start_ioman()
 {
-	execl("/home/do/work/abinder/ABinder_/1110_ABinder/ioman/ioman","./A",(char*)NULL);
+	execl("/home/do/work/Test/ABinder_/ioman/ioman","./A",(char*)NULL);
 }
 
 void start_processes()
