@@ -59,12 +59,31 @@ int abinder_release(struct inode *inode, struct file *filp) {
 	return 0; 
 } 
 
+struct ioctl
+{
+	pid_t pid;
+	int service_type;
+};
+
 /* 제어 함수 : 별도의 명령어를 통해 '디바이스'를 제어하고자 할 때 필요 */
 long abinder_ioctl(struct file *filp, unsigned int cmd, unsigned long data) { 
 	switch (cmd) { 
 		case REGISTER_SERVICE:
-			//getkeyboard();
+		{
 			printk(KERN_INFO "[%s] REGISTER_SERVICE called!", __func__);
+			
+			/*
+			
+			list <ioctl> alist;
+			
+			for(int i=0; i<10; i++)
+			{
+				ioctl ic;
+				//ic.pid=
+			}
+			*/
+			
+		}	
 			break;
 		case CALL_SERVICE:
 			printk(KERN_INFO "[%s] CALL_SERVICE called!", __func__);
@@ -79,6 +98,8 @@ long abinder_ioctl(struct file *filp, unsigned int cmd, unsigned long data) {
 	
 	return 0; 
 } 
+
+
 
 /* -파일에 데이터 쓰기- Copy 'user space buffer' -> 'kernel space buffer' */ 
 /* 'user space'의 'buf'에서 'count 바이트' 만큼 읽은 후 'Device'의 'fpos' 위치로 저장 */
