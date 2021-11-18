@@ -8,15 +8,13 @@
 #include <linux/unistd.h> 	/* 'read(), write()' 사용 */
 #include <linux/cdev.h> 	/* 'cdev' 구조체 사용*/
 #include <linux/device.h> 
+#include "my_ioctl.h"
+#include <linux/list.h> 
+#include <linux/types.h>	/* 'list_head' 사용 */
 
 #define FIRST_MINOR 0 		/* minor number(부번호)의 'Starting Number' */ 
 #define MINOR_CNT 1 
 #define DEVICE_NAME "abinder" 
-#define REGISTER_SERVICE 1
-#define CALL_SERVICE 2
-#define CALL_SERVICE_RET 3
- 
-
 
 //TODO: 전역적으로 사용하는 변수들 묶어서 struct abinder_dev {}  만들어야 함 - (o)
 //      multi-application 에서 사용하기 위해, process당 변수와 driver 전체에서 사용하는 변수 구분해야하고... << ???
@@ -59,41 +57,83 @@ int abinder_release(struct inode *inode, struct file *filp) {
 	return 0; 
 } 
 
-struct ioctl
-{
-	pid_t pid;
-	int service_type;
-};
+
+typedef struct ab_list{
+	char *service_name;
+	int app_id;
+	struct list_head s_list;
+	struct list_head i_list;
+}Node;
+
 
 /* 제어 함수 : 별도의 명령어를 통해 '디바이스'를 제어하고자 할 때 필요 */
 long abinder_ioctl(struct file *filp, unsigned int cmd, unsigned long data) { 
+	
 	switch (cmd) { 
-		case REGISTER_SERVICE:
+		case REGISTER_SERVICE:	
 		{
-			printk(KERN_INFO "[%s] REGISTER_SERVICE called!", __func__);
+		
+			LIST_HEAD(s_list);
+			LIST_HEAD(i_list);
 			
-			/*
+			Node node1;
+			Node node2;
+			Node node3;
+			Node node4;
+			Node node5;
 			
-			list <ioctl> alist;
+			Node *now1;
+			Node *now2;
+	
+			printk("ab_List Module Insert\n");
 			
-			for(int i=0; i<10; i++)
+			node1.service_name="onDisplay";
+			node2.service_name="getKeyboard";
+			node3.app_id=10;	
+			node4.app_id=20;
+			node5.app_id=30;	
+		
+			INIT_LIST_HEAD(&s_list);
+			INIT_LIST_HEAD(&i_list);	
+		
+			list_add(&node1.s_list,&s_list);
+			list_add(&node2.s_list,&s_list);	
+			list_add(&node3.i_list,&i_list);
+			list_add(&node4.i_list,&i_list);
+			list_add(&node5.i_list,&i_list);
+	
+
+			list_for_each_entry(now1,&s_list,s_list)
 			{
-				ioctl ic;
-				//ic.pid=
+				printk("Service_Name = %s\n", now1->service_name);				
 			}
-			*/
+	
+			list_for_each_entry(now2,&i_list,i_list)
+			{
 			
-		}	
+				printk("App_Id = %d\n", now2->app_id);						
+			}
+	
+			return 0;
 			break;
+		}
 		case CALL_SERVICE:
+		{	
+
 			printk(KERN_INFO "[%s] CALL_SERVICE called!", __func__);
-			break;
+			break;	
+		}		
 		case CALL_SERVICE_RET:
 			printk(KERN_INFO "[%s] CALL_SERVICE_RET called!", __func__);
 			break;
+			
+		case FIND_SERVICE:
+			printk(KERN_INFO "[%s] FIND_SERVICE called!", __func__);
+			break;
+			
 		default:
 			printk(KERN_INFO "[%s] unknown command!", __func__);
-			return 0;
+			return -ENOTTY;
 	}
 	
 	return 0; 
@@ -161,7 +201,49 @@ ssize_t abinder_read(struct file *filp, char *buf, size_t count, loff_t *f_pos) 
 static int __init abinder_init(void){ 
 	int alloc_ret;
 	int cdev_ret;
+	/*
+	LIST_HEAD(s_list);
+	LIST_HEAD(i_list);
+			
+	Node node1;
+	Node node2;
+	Node node3;
+	Node node4;
+	Node node5;
+	
+	Node *now1;
+	Node *now2;
+	
+	printk("ab_List Module Insert\n");
+			
+	node1.service_name="Display";
+	node2.service_name="getKeyboard";
+	node3.app_id=10;	
+	node4.app_id=20;
+	node5.app_id=30;	
+		
+	INIT_LIST_HEAD(&s_list);
+	INIT_LIST_HEAD(&i_list);	
+	
+	list_add(&node1.s_list,&s_list);
+	list_add(&node2.s_list,&s_list);	
+	list_add(&node3.i_list,&i_list);
+	list_add(&node4.i_list,&i_list);
+	list_add(&node5.i_list,&i_list);
+	
 
+	list_for_each_entry(now1,&s_list,s_list)
+	{
+		printk("Service_Name = %s\n", now1->service_name);				
+	}
+	
+	list_for_each_entry(now2,&i_list,i_list)
+	{
+		printk("App_Id = %d\n", now2->app_id);						
+	}
+	
+	return 0;
+*/
 	/* alloc_chrdev_region : 'dev'가 성공적인 경우 ' Character Device 번호' 자동 할당(시스템에 등록) */
 	/* int alloc_chrdev_region(dev_t *dev, unsigned baseminor, unsigned count, const char *name) */
 	/* - 'dev' : 주번호, 'baseminor' : 디바이스에 할당될 첫번째 부번호(보통 0), */
@@ -221,9 +303,10 @@ static void __exit abinder_exit(void) {
 	/* void unregister_chrdev_region(dev_t from, unsigned count); : 'from'으로부터 'count'개의 'Minor 번호' 반납 */
 	/* - 'from' : 주번호, 부번호를 가지고 있는 dev_t, 'count' : 해제할 장비의 개수 -> 장치 번호를 반환 */
 	
+	printk("ab_list Module Remove\n");
 	device_destroy(adev.my_class, dev);
 	cdev_del(&adev.my_cdev); 
-	unregister_chrdev_region(dev, MINOR_CNT);	/* 'Char D/D 제거, 'dev'로부터 'MINOR_CNT(=1)개' Minor Number 반납 */
+	unregister_chrdev_region(dev, MINOR_CNT); /* 'Char D/D 제거, 'dev'로부터 'MINOR_CNT(=1)개' Minor Number 반납 */
 	
 	if (device_buf != NULL) 
 		kfree(device_buf); 
