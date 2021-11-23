@@ -1,5 +1,5 @@
-TARGET = 7_9
-SOURCES = 7_9.cpp
+TARGET = 8_4
+SOURCES = 8_4.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
 
