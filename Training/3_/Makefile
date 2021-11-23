@@ -1,17 +1,13 @@
-TARGET = 3_11
-SOURCES = 3_11.cpp
 
-OBJECTS = $(SOURCES:.cpp=.o)
 
-##################################
+source_files = $(wildcard *.cpp)
 
-default : $(TARGET)
 
-$(TARGET) : $(OBJECTS)
-	$(CXX) -o $@ $^
+all: $(source_files:.cpp=)
 
-%.o : %.cpp
-	$(CXX) -c -o ${CXXFLAGS} $@ $<
+
+$(source_files:.cpp=) : % : %.cpp
+	$(CXX) -o $@ $(CXXFLAGS) $^
 
 clean:
-	rm -rf $(OBJECTS) $(TARGET)
+	@echo "  REMOVE all object files"; rm -f $(source_files:.cpp=.o) $(source_files:.cpp=)
