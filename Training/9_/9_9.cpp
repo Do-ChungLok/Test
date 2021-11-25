@@ -1,27 +1,27 @@
 #include <stdio.h>
-
 int main()
 {
-    int x1,y1 ,x2,y2 ,x3,y3 ,x4,y4;
-    
-    scanf("%d %d\n",&x1, &y1);
-    scanf("%d %d\n",&x2, &y2);
-    scanf("%d %d",&x3, &y3);
+    long x,y,z;
+ 
+    while(1){
+        scanf("%ld %ld %ld", &x, &y, &z);
+        
+        if(x==0 && y==0 && z==0)    // 0 0 0 입력하면 바로 종료(탈출)
+        	break;
+        x*=x;    
+        y*=y;
+        z*=z;
 
-    if(x1==x2)
-        x4=x3;
-    else if(x1==x3)
-        x4=x2;
-    else
-        x4=x1;
+    	if(x==y + z || y==x + z || z==x + y)
+    	{
+        	printf("right\n");
+    	}
     
-    if(y1==y2)
-        y4=y3;
-    else if(y1==y3)
-        y4=y2;
-    else
-        y4=y1;
-    printf("%d %d", x4,y4);
+    	else
+    	{
+        	printf("wrong\n");
+    	}
+
+    }
     
-    return 0;
 }
