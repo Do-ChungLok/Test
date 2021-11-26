@@ -2,7 +2,7 @@
 
 void star(int i, int j, int N)
 {
-    if((i/N)%3 == 1 && (j/N)%3 == 1)
+    if((i/N)%3 == 1 && (j/N)%3 == 1)    // 빈 칸에는 공백 처리 
         printf(" ");
     else{
         if(N/3 == 0)
