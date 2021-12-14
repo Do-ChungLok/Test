@@ -48,7 +48,7 @@ int main() {
     
 	sort(input_card, input_card + card_num1);    // 입력한 정수들을 오름차순으로 정렬
 
-    scanf("%d", &card_num2);    // 카드의 개수 입력2
+	scanf("%d", &card_num2);    // 카드의 개수 입력2
     
 	for (int i = 0; i < card_num2; i++) {
 		int integer_card;    // 몇개 가지고 있어야하는 카드인지 구해야 하는 정수    
