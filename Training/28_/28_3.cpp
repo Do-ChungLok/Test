@@ -45,10 +45,10 @@ int main()
     
     dfs(1,0);     //가장 멀리 있는 정점(end_point) 구하기
  
-    diameter=0;    // 지름 0으로 초기화
+    diameter = 0;    // 지름 0으로 초기화
     memset(visited, 0, sizeof(visited));    // 배열 데이터 0으로 초기화
     
-    dfs(end_point,0);    //end_point와 가장 멀리 있는 정점과의 거리 구하기
+    dfs(end_point, 0);    //end_point와 가장 멀리 있는 정점과의 거리 구하기
     
     printf("%d\n", diameter);    // 지름 출력
 
