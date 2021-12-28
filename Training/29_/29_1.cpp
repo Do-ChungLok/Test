@@ -18,10 +18,11 @@ int findParent(int node)
     }
 }
 
-void union_func(int a, int b) {	// find 연산으로 각각의 루트를 찾아줌
-	int new_a = findParent(a);
-	int new_b = findParent(b);
-	parent[new_b] = new_a;    // ex) a = 3, b = 7 -> new_a = 3, new_b = 7 -> parent[7] = 3
+void union_func(int node1, int node2) 	// find 연산으로 각각의 루트를 찾아줌
+{
+	node1 = findParent(node1);
+	node2 = findParent(node2);
+	parent[node2] = node1;    // ex) node1 = 3, node2 = 7 -> node1 = 3, node2 = 7 -> parent[7] = 3
 }
 
 int main() 
