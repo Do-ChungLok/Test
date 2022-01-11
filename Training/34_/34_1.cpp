@@ -16,7 +16,7 @@ vector<int> makeTable(string pattern)
 
     int j = 0 ; 
     for(int i = 1; i < pattern_size; i++) {    // i는 1부터 시작 접두 접미사 부분이 일치하는지 확인 
-        while(j > 0 && pattern[i] != pattern[j]){    // i 인덱스의 값이랑 j 인덱스의 값이 일치하지 않으면
+        while(j > 0 && pattern[i] != pattern[j]){    // i 인덱스의 값과 j 인덱스의 값이 일치하지 않으면
             j = table[j - 1];    // j - 1 인덱스 값을 j에 넣음
         }
         
